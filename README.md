@@ -2,6 +2,8 @@
 
 This repository provides a customizable landing page for the St. Louis Area Council's Coffee Fundraiser, designed for use by St. Louis scouting units. The site is built to be easily forked and deployed via GitHub Pages, allowing each unit to personalize their own fundraiser page.
 
+This repo (formerly hosted directly at `pack3721.github.io`) is published as a project page at [pack3721.github.io/fundraise](https://pack3721.github.io/fundraise/), served under the `/fundraise` path via `_config.yml`'s `baseurl`.
+
 ## Features
 
 - **Modern Landing Page**: Clean, mobile-friendly design for promoting the coffee fundraiser.
@@ -19,7 +21,7 @@ This repository provides a customizable landing page for the St. Louis Area Coun
 ## Forking and Customization
 
 1. **Fork the Repository**: Click the "Fork" button on GitHub to create your own copy.
-2. **Update Config**: Edit `_config.yml` to set your unit's name, fundraiser details, and contact info.
+2. **Update Config**: Edit `_config.yml` to set your unit's name, fundraiser details, and contact info. If your fork's repo name differs from `fundraise`, also update `url`/`baseurl` in `_config.yml` to match (or clear `baseurl` entirely if deploying as a `<user>.github.io` root site).
 3. **Customize Content** (optional): Modify the HTML files in the root and subfolders (`coffee/`, `make/`, `sell/`) to match your unit's messaging.
 4. **Replace Images** (optional): Add or replace images in `assets/images/` as needed.
 5. **Preview Locally** (optional): Use Jekyll or GitHub Pages' preview feature to test your changes.

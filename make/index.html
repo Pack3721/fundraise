@@ -167,7 +167,7 @@ title: Make
                 </div>
                 <h2 id="flyerTitle" class="title is-4 has-text-centered no-print">Your Printable Fundraiser Flyer</h2>
                 <div class="has-text-centered" style="margin-bottom:0.5em;">
-                    <img id="flyerImg" src="/assets/images/coffee.png" alt="Coffee Fundraiser" style="display:inline-block;">
+                    <img id="flyerImg" src="{{ site.baseurl }}/assets/images/coffee.png" alt="Coffee Fundraiser" style="display:inline-block;">
                 </div>
                 <p class="has-text-centered title" id="flyerFundraiserText" style="font-size:1.2em; font-weight:bold; margin-bottom:0.5em;">
                     {{ site.scout_type }} {{ site.unit_type }} {{ site.unit_number }} Coffee Fundraiser
@@ -198,7 +198,7 @@ title: Make
         </div>
     </section>
         <script src="https://cdn.jsdelivr.net/npm/qrious/dist/qrious.min.js"></script>
-        <script src="/assets/js/utility.js?v={{site.github.build_revision}}"></script>
+        <script src="{{ site.baseurl }}/assets/js/utility.js?v={{site.github.build_revision}}"></script>
         <script>
 
         // Popcorn code preview popover and button text/color change
@@ -272,12 +272,12 @@ title: Make
             const t = bytesToBase32(new Uint8Array(scoutHashBuf)).slice(0,8);
             const isPopcorn = Boolean(p);
             const url = isPopcorn
-                ? `${window.location.origin}/sell/?s=${encodeURIComponent(s)}&p=${p}&t=${t}`
-                : `${window.location.origin}/coffee/?s=${encodeURIComponent(s)}&t=${t}`;
+                ? `${window.location.origin}{{ site.baseurl }}/sell/?s=${encodeURIComponent(s)}&p=${p}&t=${t}`
+                : `${window.location.origin}{{ site.baseurl }}/coffee/?s=${encodeURIComponent(s)}&t=${t}`;
             const flyerKind = isPopcorn ? 'Coffee & Popcorn Fundraiser' : 'Coffee Fundraiser';
             const flyerTitle = flyerKind + ' Flyer';
             const flyerFundraiserText = `{{ site.scout_type }} {{ site.unit_type }} {{ site.unit_number }} ${flyerKind}`;
-            const flyerImgSrc = isPopcorn ? '/assets/images/sell.png' : '/assets/images/coffee.png';
+            const flyerImgSrc = isPopcorn ? '{{ site.baseurl }}/assets/images/sell.png' : '{{ site.baseurl }}/assets/images/coffee.png';
             // Populate and show social media share section
             const socialSection = document.getElementById('socialSection');
             const socialMsg = document.getElementById('socialMsg');
