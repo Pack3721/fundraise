@@ -47,6 +47,10 @@ the next visit, and the scout is told why. So:
 `order_by` is free text printed as "Order by <this>", so write it the way it
 should read on paper. A scout can still override it on their own flyer.
 
+`store_base` is where a Scout's online store lives; a bare 8-digit Scout code
+typed into the flyer expands to this plus the code. It's read live rather than
+saved per flyer, so it isn't subject to the `updated` gate.
+
 Anyone can also hit **Reset to pack presets** to pull the current file in on
 demand.
 

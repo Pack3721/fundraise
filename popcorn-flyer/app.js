@@ -26,8 +26,7 @@ const STORAGE_KEY = 'popcornFlyer';
 const IMAGE_STORAGE_KEY = 'popcornFlyerImages';
 const SEEDED_STORAGE_KEY = 'popcornFlyerSeeded';
 const PRODUCTS_URL = 'products.yml';
-// A Scout's Trails End store is this plus their 8-character scout code.
-const TRAILS_END_STORE = 'https://trails-end.com/store/scout/';
+// A bare 8-character Scout code expands to the store base from products.yml.
 const SCOUT_CODE = /^[A-Za-z0-9]{8}$/;
 // The site-wide settings file, one level up — shared with the landing page,
 // which gets it filled in at build time instead (see ../build.py).
@@ -41,6 +40,7 @@ const FALLBACK_SETTINGS = { pack_number: '721' };
 const FALLBACK_PRESETS = {
   updated: '',
   orderBy: 'October 31st',
+  storeBase: 'https://trails-end.com/store/scout/',
   products: [
     { name: 'Salted Caramel Corn', price: '$20' },
     { name: 'White Cheddar', price: '$20' },
@@ -133,12 +133,12 @@ function writeJson(key, value) {
 
 // ── products.yml ──────────────────────────────────────────────────────────
 
-/* Parses the narrow shape of products.yml only — the scalars `updated` and
- * `order_by`, plus a `products:` list of `- name:` / `price:` pairs. Not a
- * general YAML parser; it exists so the presets can stay a hand-editable file
- * without pulling in a parser library or a build step. */
+/* Parses the narrow shape of products.yml only — the scalars `updated`,
+ * `order_by` and `store_base`, plus a `products:` list of `- name:` / `price:`
+ * pairs. Not a general YAML parser; it exists so the presets can stay a
+ * hand-editable file without pulling in a parser library or a build step. */
 function parseProductsYaml(text) {
-  const out = { updated: '', orderBy: '', products: [] };
+  const out = { updated: '', orderBy: '', storeBase: '', products: [] };
   let inProducts = false;
   let current = null;
 
@@ -156,6 +156,7 @@ function parseProductsYaml(text) {
         inProducts = false;
         if (key === 'updated') out.updated = unquote(value);
         if (key === 'order_by') out.orderBy = unquote(value);
+        if (key === 'store_base') out.storeBase = unquote(value);
       }
       continue;
     }
@@ -286,7 +287,7 @@ function textFor(key) {
 function orderHref() {
   let url = (state.orderUrl || '').trim();
   if (!url) return '';
-  if (SCOUT_CODE.test(url)) return TRAILS_END_STORE + url.toUpperCase();
+  if (SCOUT_CODE.test(url)) return presets.storeBase.replace(/\/?$/, '/') + url.toUpperCase();
   if (!/^[a-z][a-z0-9+.-]*:/i.test(url)) url = 'https://' + url;
   return /^https?:\/\//i.test(url) ? url : '';
 }
@@ -592,9 +593,15 @@ async function loadPresets() {
     presets = parseProductsYaml(await response.text());
     if (!presets.products.length) presets.products = FALLBACK_PRESETS.products;
     if (!presets.orderBy) presets.orderBy = FALLBACK_PRESETS.orderBy;
+    if (!presets.storeBase) presets.storeBase = FALLBACK_PRESETS.storeBase;
   } catch (e) {
     presets = FALLBACK_PRESETS;
   }
+
+  // The store base isn't saved per flyer — it's read live — so a Scout code
+  // entered before the file arrived needs re-expanding now.
+  renderText();
+  scheduleQr();
 
   el.presetHint.textContent = presets.updated
     ? `Pack presets last updated ${presets.updated}.`

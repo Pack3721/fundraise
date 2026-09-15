@@ -13,6 +13,10 @@ updated: 2026-09-15
 # should read on paper. A scout can still change it on their own flyer.
 order_by: October 31st
 
+# Where a Scout's online store lives. Typing just the 8-digit Scout code into
+# the flyer expands to this plus the code.
+store_base: https://trails-end.com/store/scout/
+
 # One `- name: ... / price: ...` pair per product. Six fit the flyer's
 # two-column grid neatly; more will still render but will crowd the page.
 products:
