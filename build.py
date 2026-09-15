@@ -25,8 +25,8 @@ TOKEN = re.compile(r"\{\{\s*([\w-]+)\s*\}\}")
 
 
 def read_settings(path):
-    """site-settings.yml is plain `key: value` lines — same reader as
-    site-settings.js, kept deliberately narrow."""
+    """site-settings.yml is plain `key: value` lines — the same narrow reader
+    the flyer's app.js uses in the browser."""
     settings = {}
     for raw in path.read_text(encoding="utf-8").splitlines():
         line = re.sub(r"\s+#.*$", "", raw)

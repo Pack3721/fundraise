@@ -8,8 +8,6 @@
 // The same generator the pack's cub-qr site uses, so flyer QR codes look like
 // the rest of the pack's material. Loaded dynamically: if the CDN is blocked
 // the flyer still works, it just prints without a QR code.
-import { loadSiteSettings } from '../site-settings.js';
-
 let QRCodeStyling = null;
 
 const qrLibReady = (async () => {
@@ -28,6 +26,9 @@ const STORAGE_KEY = 'popcornFlyer';
 const IMAGE_STORAGE_KEY = 'popcornFlyerImages';
 const SEEDED_STORAGE_KEY = 'popcornFlyerSeeded';
 const PRODUCTS_URL = 'products.yml';
+// The site-wide settings file, one level up — shared with the landing page,
+// which gets it filled in at build time instead (see ../build.py).
+const SETTINGS_URL = '../site-settings.yml';
 
 // Used only when site-settings.yml can't be fetched.
 const FALLBACK_SETTINGS = { pack_number: '721' };
@@ -171,6 +172,19 @@ function parseProductsYaml(text) {
   }
 
   out.products = out.products.filter((p) => p.name);
+  return out;
+}
+
+/* Parses site-settings.yml: plain top-level `key: value` lines, nothing
+ * nested. Keys come back as written (snake_case). */
+function parseSettingsYaml(text) {
+  const out = {};
+  for (const rawLine of text.split(/\r?\n/)) {
+    const line = rawLine.replace(/\s+#.*$/, '');
+    if (!line.trim() || /^\s*#/.test(line)) continue;
+    const match = /^(\w[\w-]*):\s*(.*)$/.exec(line);
+    if (match) out[match[1]] = unquote(match[2]);
+  }
   return out;
 }
 
@@ -533,7 +547,13 @@ function applyPresets(reason) {
  * value there never disturbs a saved flyer, while a key added later still
  * reaches everyone once on their next visit. */
 async function loadDefaults() {
-  const settings = await loadSiteSettings(FALLBACK_SETTINGS);
+  let settings = FALLBACK_SETTINGS;
+  try {
+    const response = await fetch(SETTINGS_URL, { cache: 'no-cache' });
+    if (!response.ok) throw new Error(String(response.status));
+    const parsed = parseSettingsYaml(await response.text());
+    if (Object.keys(parsed).length) settings = parsed;
+  } catch (e) { /* keep the built-ins */ }
 
   const seeded = readJson(SEEDED_STORAGE_KEY, []);
   const seenSet = Array.isArray(seeded) ? seeded : [];

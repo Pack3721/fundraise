@@ -91,7 +91,7 @@ print resolution.
 | --- | --- |
 | `index.html` | Editor panel plus the flyer itself |
 | `flyer.css` | Design tokens, the printable sheet, editor chrome, print rules |
-| `app.js` | State, `localStorage`, image downscaling, defaults, presets, QR |
+| `app.js` | State, `localStorage`, image downscaling, site settings, presets, QR, backups |
 | `products.yml` | Order-by date, product presets, and their rollout date |
 | `assets/` | Cub Scouts logo |
 

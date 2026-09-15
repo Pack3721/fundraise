@@ -15,9 +15,8 @@ deploys through GitHub Actions
 | Path | What it is |
 | --- | --- |
 | [`index.html`](index.html) | Landing page listing the tools |
-| [`site-settings.yml`](site-settings.yml) | Site-wide settings (pack number) |
+| [`site-settings.yml`](site-settings.yml) | Site-wide settings (pack number); filled into pages by the build, and read directly by the flyer at runtime |
 | [`build.py`](build.py) | Assembles `_site/`, filling `{{ key }}` tokens from the settings |
-| [`site-settings.js`](site-settings.js) | Browser-side loader, for pages that need a setting at runtime (the flyer) |
 | [`popcorn-flyer/`](popcorn-flyer/) | Fill-in-the-blanks printable popcorn flyer — see its [README](popcorn-flyer/README.md) |
 | [`2025-archive/`](2025-archive/) | The 2025 Jekyll site, kept as code only |
 
