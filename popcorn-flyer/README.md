@@ -8,6 +8,15 @@ Plain HTML/CSS/JS — no build step, no server, no accounts. Everything a scout
 enters (photos included) is saved in their own browser's `localStorage` and
 never leaves the device.
 
+## Starting defaults
+
+`defaults.yml` holds starting values for a brand-new flyer — currently just
+`pack_number`. These have **no rollout date**: each key is applied the first
+time a browser sees it and never again, so changing a value there never
+disturbs anyone's saved flyer. Adding a *new* key does reach existing scouts
+once, on their next visit, because each key is tracked separately. **Start
+over** re-applies them.
+
 ## Updating the product list
 
 `products.yml` holds the pack-wide presets everyone starts from — the order
@@ -68,7 +77,8 @@ print resolution.
 | --- | --- |
 | `index.html` | Editor panel plus the flyer itself |
 | `flyer.css` | Design tokens, the printable sheet, editor chrome, print rules |
-| `app.js` | State, `localStorage`, image downscaling, presets, QR |
+| `app.js` | State, `localStorage`, image downscaling, defaults, presets, QR |
+| `defaults.yml` | Starting values, seeded once per browser |
 | `products.yml` | Order-by date, product presets, and their rollout date |
 | `assets/` | Cub Scouts logo |
 

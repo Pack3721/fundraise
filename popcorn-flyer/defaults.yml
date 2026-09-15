@@ -1,0 +1,14 @@
+# Starting values for a brand-new flyer.
+#
+# Unlike products.yml, these have no rollout date: each key is applied to a
+# scout's flyer the FIRST time that key is seen, and never again. Changing a
+# value here will not push it over anyone's saved flyer — it only affects
+# scouts who haven't been seeded with that key yet.
+#
+# Adding a NEW key does still reach existing scouts, once, on their next
+# visit, because each key is tracked separately.
+#
+# Keys are the flyer's own field names in snake_case. Anything not recognized
+# is ignored.
+
+pack_number: 721

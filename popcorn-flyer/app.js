@@ -24,7 +24,12 @@ const qrLibReady = (async () => {
 
 const STORAGE_KEY = 'popcornFlyer';
 const IMAGE_STORAGE_KEY = 'popcornFlyerImages';
+const SEEDED_STORAGE_KEY = 'popcornFlyerSeeded';
 const PRODUCTS_URL = 'products.yml';
+const DEFAULTS_URL = 'defaults.yml';
+
+// Used only when defaults.yml can't be fetched.
+const FALLBACK_DEFAULTS = { packNumber: '721' };
 
 // Used only when products.yml can't be fetched (opening the page straight off
 // disk, say). The file is the real source of truth.
@@ -71,7 +76,7 @@ const QR_SCHEMES = [
 // prompts from the original design, so an unfinished flyer reads as a draft.
 const PLACEHOLDERS = {
   scoutName: '[Scout Name]',
-  packNumber: '3721',
+  packNumber: '721',
   orderBy: '[Month Day]',
   goal: '[camp, gear, or an adventure]',
   orderUrl: '[your order link]',
@@ -79,7 +84,7 @@ const PLACEHOLDERS = {
 
 const DEFAULTS = {
   scoutName: '',
-  packNumber: '3721',
+  packNumber: '',   // seeded once from defaults.yml
   orderBy: '',
   goal: '',
   orderUrl: '',
@@ -165,6 +170,21 @@ function parseProductsYaml(text) {
   }
 
   out.products = out.products.filter((p) => p.name);
+  return out;
+}
+
+/* Parses defaults.yml: top-level `key: value` scalars only, with snake_case
+ * keys mapped to the flyer's own camelCase field names. */
+function parseDefaultsYaml(text) {
+  const out = {};
+  for (const rawLine of text.split(/\r?\n/)) {
+    const line = rawLine.replace(/\s+#.*$/, '');
+    if (!line.trim() || /^\s*#/.test(line)) continue;
+    const match = /^(\w[\w-]*):\s*(.*)$/.exec(line);
+    if (!match) continue;
+    const key = match[1].replace(/_(\w)/g, (_, c) => c.toUpperCase());
+    out[key] = unquote(match[2]);
+  }
   return out;
 }
 
@@ -507,6 +527,42 @@ function applyPresets(reason) {
   if (reason) show(el.presetNotice, reason);
 }
 
+/* Seeds starting values from defaults.yml. Each key lands exactly once, ever,
+ * tracked separately from the flyer itself — so editing a value there never
+ * disturbs a saved flyer, while a key added later still reaches everyone once
+ * on their next visit. */
+async function loadDefaults() {
+  let defaults = FALLBACK_DEFAULTS;
+  try {
+    const response = await fetch(DEFAULTS_URL, { cache: 'no-cache' });
+    if (!response.ok) throw new Error(String(response.status));
+    const parsed = parseDefaultsYaml(await response.text());
+    if (Object.keys(parsed).length) defaults = parsed;
+  } catch (e) { /* keep the built-ins */ }
+
+  const seeded = readJson(SEEDED_STORAGE_KEY, []);
+  const seenSet = Array.isArray(seeded) ? seeded : [];
+  let changed = false;
+
+  for (const [key, value] of Object.entries(defaults)) {
+    // Only recognized text/select fields, so a typo'd key can't write junk.
+    if (!TEXT_FIELDS.includes(key) && !SELECT_FIELDS.includes(key)) continue;
+    if (seenSet.includes(key)) continue;
+    seenSet.push(key);
+    changed = true;
+    state[key] = value;
+    const input = document.getElementById(key);
+    if (input) input.value = value;
+  }
+
+  if (changed) {
+    writeJson(SEEDED_STORAGE_KEY, seenSet);
+    save();
+    renderText();
+    fitContent();
+  }
+}
+
 async function loadPresets() {
   try {
     const response = await fetch(PRODUCTS_URL, { cache: 'no-cache' });
@@ -594,11 +650,14 @@ function wire() {
     try {
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem(IMAGE_STORAGE_KEY);
+      // Clear the seed log too, so a fresh flyer gets the defaults again.
+      localStorage.removeItem(SEEDED_STORAGE_KEY);
     } catch (e) { /* nothing saved to clear */ }
     state = Object.assign({}, DEFAULTS, { products: [] });
     images = {};
     hydrateControls();
     applyPresets('');
+    loadDefaults();
     renderText();
     renderPickers();
     renderPhotoStrip();
@@ -623,6 +682,7 @@ renderProducts();
 renderQr();
 fitContent();
 fitPreview();
+loadDefaults();
 loadPresets();
 
 // Caprasimo and Figtree are wider than the fallbacks, so the first measure
