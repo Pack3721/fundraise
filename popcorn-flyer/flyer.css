@@ -133,6 +133,17 @@ legend {
   margin-top: 4px;
 }
 
+/* The Android/web "share" glyph — three dots joined by lines — drawn inline so
+   the hint can point at the right button without shipping an icon. */
+.share-icon {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  vertical-align: -1px;
+  background: no-repeat center / contain
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23474238'%3E%3Cpath d='M18 16.1a2.9 2.9 0 0 0-1.96.77L8.9 12.7a3.3 3.3 0 0 0 0-1.4l7.05-4.11A2.99 2.99 0 1 0 15 5c0 .24.04.47.09.7L8.04 9.81a3 3 0 1 0 0 4.38l7.12 4.16c-.05.21-.08.43-.08.65a2.92 2.92 0 1 0 2.92-2.9z'/%3E%3C/svg%3E");
+}
+
 .input {
   width: 100%;
   min-height: 36px;
