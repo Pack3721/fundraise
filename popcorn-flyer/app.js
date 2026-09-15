@@ -8,6 +8,8 @@
 // The same generator the pack's cub-qr site uses, so flyer QR codes look like
 // the rest of the pack's material. Loaded dynamically: if the CDN is blocked
 // the flyer still works, it just prints without a QR code.
+import { loadSiteSettings } from '../site-settings.js';
+
 let QRCodeStyling = null;
 
 const qrLibReady = (async () => {
@@ -26,10 +28,9 @@ const STORAGE_KEY = 'popcornFlyer';
 const IMAGE_STORAGE_KEY = 'popcornFlyerImages';
 const SEEDED_STORAGE_KEY = 'popcornFlyerSeeded';
 const PRODUCTS_URL = 'products.yml';
-const DEFAULTS_URL = 'defaults.yml';
 
-// Used only when defaults.yml can't be fetched.
-const FALLBACK_DEFAULTS = { packNumber: '721' };
+// Used only when site-settings.yml can't be fetched.
+const FALLBACK_SETTINGS = { pack_number: '721' };
 
 // Used only when products.yml can't be fetched (opening the page straight off
 // disk, say). The file is the real source of truth.
@@ -84,7 +85,7 @@ const PLACEHOLDERS = {
 
 const DEFAULTS = {
   scoutName: '',
-  packNumber: '',   // seeded once from defaults.yml
+  packNumber: '',   // seeded once from site-settings.yml
   orderBy: '',
   goal: '',
   orderUrl: '',
@@ -170,21 +171,6 @@ function parseProductsYaml(text) {
   }
 
   out.products = out.products.filter((p) => p.name);
-  return out;
-}
-
-/* Parses defaults.yml: top-level `key: value` scalars only, with snake_case
- * keys mapped to the flyer's own camelCase field names. */
-function parseDefaultsYaml(text) {
-  const out = {};
-  for (const rawLine of text.split(/\r?\n/)) {
-    const line = rawLine.replace(/\s+#.*$/, '');
-    if (!line.trim() || /^\s*#/.test(line)) continue;
-    const match = /^(\w[\w-]*):\s*(.*)$/.exec(line);
-    if (!match) continue;
-    const key = match[1].replace(/_(\w)/g, (_, c) => c.toUpperCase());
-    out[key] = unquote(match[2]);
-  }
   return out;
 }
 
@@ -542,25 +528,21 @@ function applyPresets(reason) {
   if (reason) show(el.presetNotice, reason);
 }
 
-/* Seeds starting values from defaults.yml. Each key lands exactly once, ever,
- * tracked separately from the flyer itself — so editing a value there never
- * disturbs a saved flyer, while a key added later still reaches everyone once
- * on their next visit. */
+/* Seeds starting values from the site-wide settings file. Each key lands
+ * exactly once, ever, tracked separately from the flyer itself — so editing a
+ * value there never disturbs a saved flyer, while a key added later still
+ * reaches everyone once on their next visit. */
 async function loadDefaults() {
-  let defaults = FALLBACK_DEFAULTS;
-  try {
-    const response = await fetch(DEFAULTS_URL, { cache: 'no-cache' });
-    if (!response.ok) throw new Error(String(response.status));
-    const parsed = parseDefaultsYaml(await response.text());
-    if (Object.keys(parsed).length) defaults = parsed;
-  } catch (e) { /* keep the built-ins */ }
+  const settings = await loadSiteSettings(FALLBACK_SETTINGS);
 
   const seeded = readJson(SEEDED_STORAGE_KEY, []);
   const seenSet = Array.isArray(seeded) ? seeded : [];
   let changed = false;
 
-  for (const [key, value] of Object.entries(defaults)) {
-    // Only recognized text/select fields, so a typo'd key can't write junk.
+  for (const [rawKey, value] of Object.entries(settings)) {
+    // snake_case in the file, camelCase in here; only recognized text/select
+    // fields, so a typo'd or unrelated key can't write junk.
+    const key = rawKey.replace(/_(\w)/g, (_, c) => c.toUpperCase());
     if (!TEXT_FIELDS.includes(key) && !SELECT_FIELDS.includes(key)) continue;
     if (seenSet.includes(key)) continue;
     seenSet.push(key);
@@ -697,7 +679,7 @@ async function importBackup(file) {
   images = nextImages;
   save();
   saveImages();
-  // Restore the seed log too, or defaults.yml would re-seed over the
+  // Restore the seed log too, or site-settings.yml would re-seed over the
   // imported pack number on the next load.
   writeJson(SEEDED_STORAGE_KEY, Array.isArray(manifest.seeded) ? manifest.seeded : []);
 
@@ -783,7 +765,7 @@ function wire() {
     try {
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem(IMAGE_STORAGE_KEY);
-      // Clear the seed log too, so a fresh flyer gets the defaults again.
+      // Clear the seed log too, so a fresh flyer gets the site defaults again.
       localStorage.removeItem(SEEDED_STORAGE_KEY);
     } catch (e) { /* nothing saved to clear */ }
     state = Object.assign({}, DEFAULTS, { products: [] });

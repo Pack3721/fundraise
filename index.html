@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pack 3721 Fundraising</title>
-<meta name="description" content="Fundraising tools for Cub Scout Pack 3721.">
+<title>Pack 721 Fundraising</title>
+<meta name="description" content="Fundraising tools for a Cub Scout pack.">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caprasimo&family=Figtree:wght@400;600;700&display=swap">
 <style>
   :root {
@@ -92,7 +92,7 @@
 </head>
 <body>
 <main>
-  <span class="kicker">Cub Scout Pack 3721</span>
+  <span class="kicker">Cub Scout Pack <span data-setting="pack_number">721</span></span>
   <h1>Pack Fundraising</h1>
   <p class="lede">Tools for scouts and families running this year's fundraiser.</p>
 
@@ -116,5 +116,13 @@
     </p>
   </footer>
 </main>
+
+<script type="module">
+  import { applySiteSettings } from './site-settings.js';
+  // The markup carries the fallback; the file wins when it loads.
+  applySiteSettings().then((s) => {
+    if (s.pack_number) document.title = `Pack ${s.pack_number} Fundraising`;
+  });
+</script>
 </body>
 </html>

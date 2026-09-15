@@ -10,12 +10,13 @@ never leaves the device.
 
 ## Starting defaults
 
-`defaults.yml` holds starting values for a brand-new flyer — currently just
-`pack_number`. These have **no rollout date**: each key is applied the first
-time a browser sees it and never again, so changing a value there never
-disturbs anyone's saved flyer. Adding a *new* key does reach existing scouts
-once, on their next visit, because each key is tracked separately. **Start
-over** re-applies them.
+The site-wide [`site-settings.yml`](../site-settings.yml) (one level up, shared
+with the landing page) supplies starting values for a brand-new flyer —
+currently just `pack_number`. These have **no rollout date**: each key is
+applied the first time a browser sees it and never again, so changing a value
+there never disturbs anyone's saved flyer. Adding a *new* key does reach
+existing scouts once, on their next visit, because each key is tracked
+separately. **Start over** re-applies them.
 
 ## Updating the product list
 
@@ -55,7 +56,7 @@ Everything lives in one browser's `localStorage`, keyed to the exact origin —
 so `localhost` and `127.0.0.1` are two different flyers, and a phone can't see
 a laptop's. **Save backup (.zip)** writes `flyer.json` plus the photos as
 ordinary image files; **Import backup** restores it anywhere, including the
-defaults seed log so `defaults.yml` doesn't re-seed over the imported values.
+defaults seed log so `site-settings.yml` doesn't re-seed over the imported values.
 Import only accepts fields the page knows about, so a hand-edited or
 newer-version zip can't write junk.
 
@@ -91,7 +92,6 @@ print resolution.
 | `index.html` | Editor panel plus the flyer itself |
 | `flyer.css` | Design tokens, the printable sheet, editor chrome, print rules |
 | `app.js` | State, `localStorage`, image downscaling, defaults, presets, QR |
-| `defaults.yml` | Starting values, seeded once per browser |
 | `products.yml` | Order-by date, product presets, and their rollout date |
 | `assets/` | Cub Scouts logo |
 

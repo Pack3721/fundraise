@@ -1,0 +1,12 @@
+# Site-wide settings, read by every page on this site.
+#
+# Plain `key: value` lines only. Pages fetch this file at load time; there is
+# no build step, so a change here is live as soon as it's deployed.
+#
+# For the popcorn flyer these are starting values, applied to a scout's saved
+# flyer the FIRST time each key is seen and never again — changing a value
+# here won't push it over anyone's saved flyer. Adding a NEW key does still
+# reach existing scouts once. (Prices and the order deadline work differently:
+# see popcorn-flyer/products.yml, which rolls out by date.)
+
+pack_number: 721
