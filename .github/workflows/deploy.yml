@@ -27,10 +27,8 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Prepare site (exclude archived code)
-        run: |
-          mkdir -p _site
-          rsync -a --exclude='.git' --exclude='.github' --exclude='_site' --exclude='2025-archive' ./ _site/
+      - name: Build site (copy pages, fill in site-settings.yml)
+        run: python3 build.py
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

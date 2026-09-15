@@ -1,4 +1,6 @@
-/* Loads site-settings.yml — the one file every page on this site reads.
+/* Loads site-settings.yml in the browser, for pages that need a setting at
+ * runtime (the flyer seeds its pack number from it). Static pages get the
+ * same file filled in at build time instead — see build.py.
  *
  * The file is plain `key: value` lines, so this is a purpose-built reader,
  * not a YAML parser. It resolves the file next to itself, so it works from
@@ -36,15 +38,4 @@ export async function loadSiteSettings(fallback = {}) {
   } catch (e) {
     return fallback;
   }
-}
-
-/* Fills every element carrying data-setting="<key>" with that setting's
- * value, leaving the element's existing text as the fallback. */
-export async function applySiteSettings(fallback = {}) {
-  const settings = await loadSiteSettings(fallback);
-  for (const node of document.querySelectorAll('[data-setting]')) {
-    const value = settings[node.dataset.setting];
-    if (value !== undefined) node.textContent = value;
-  }
-  return settings;
 }
