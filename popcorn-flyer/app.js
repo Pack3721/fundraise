@@ -44,7 +44,6 @@ const QR_SCHEMES = [
     backgroundColor: '#ffffff',
     cornersSquareColor: '#7a8a5e', cornersSquareType: 'extra-rounded',
     cornersDotColor: '#8c491a', cornersDotType: 'dot',
-    iconColor: '#b2622d',
   },
   {
     // Mirrors cub-qr's navy-gold scheme.
@@ -53,7 +52,6 @@ const QR_SCHEMES = [
     backgroundColor: '#ffffff',
     cornersSquareColor: '#FFC72C', cornersSquareType: 'extra-rounded',
     cornersDotColor: '#003F87', cornersDotType: 'dot',
-    iconColor: '#003F87',
   },
   {
     // Cheapest to photocopy and the most forgiving to scan.
@@ -62,13 +60,8 @@ const QR_SCHEMES = [
     backgroundColor: '#ffffff',
     cornersSquareColor: '#000000', cornersSquareType: 'square',
     cornersDotColor: '#000000', cornersDotType: 'square',
-    iconColor: '#000000',
   },
 ];
-
-// Center mark for the QR code. The pack's own logo, served from this site, so
-// a printed flyer never depends on an icon CDN being reachable.
-const QR_ICON = 'assets/cub-scouts-logo.png';
 
 // Placeholder copy shown on the flyer for a blank field — the bracketed
 // prompts from the original design, so an unfinished flyer reads as a draft.
@@ -450,8 +443,6 @@ async function renderQr() {
     height: 400,
     data: url,
     shape: scheme.shape,
-    image: QR_ICON,
-    imageOptions: { margin: 1, imageSize: 0.3 },
     dotsOptions: { color: scheme.dotsColor, type: scheme.dotsType },
     // 4 modules is the quiet zone the QR spec asks for; without the border
     // plugin the code's own background is the only margin a camera gets.

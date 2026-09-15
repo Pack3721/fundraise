@@ -49,12 +49,11 @@ The QR is generated from the order link with
 the same generator the pack's [cub-qr](https://github.com/Pack3721/cub-qr) site
 uses, so flyer codes match the pack's other material — minus cub-qr's ring
 border, which the flyer doesn't use. The library loads from a CDN; if it can't
-be reached the flyer still fills in and prints, just without a QR code. The mark
-in the middle is this site's own `assets/cub-scouts-logo.png`, so it isn't a
-second network dependency.
+be reached the flyer still fills in and prints, just without a QR code.
 
-The code carries a 4-module quiet zone and error correction level H, and is
-checked by decoding the rendered SVG at print resolution.
+The code is plain — no ring border, no center logo — with a 4-module quiet zone
+and error correction level H, and is checked by decoding the rendered SVG at
+print resolution.
 
 ## Files
 
