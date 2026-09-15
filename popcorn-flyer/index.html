@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Popcorn Flyer Maker</title>
+<meta name="description" content="Fill in the blanks and print a Cub Scout popcorn fundraiser flyer. Everything stays in your own browser.">
+<link rel="stylesheet" href="flyer.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ── editor ────────────────────────────────────────────────────────── -->
+  <form class="editor" id="editor" autocomplete="off">
+    <h1>Popcorn Flyer Maker</h1>
+    <p class="lede">
+      Fill in the blanks, drop in a few photos, then print. Everything you type
+      is saved in this browser only — nothing is uploaded anywhere.
+    </p>
+
+    <div class="notice" id="presetNotice" hidden></div>
+    <div class="notice warn" id="storageNotice" hidden></div>
+
+    <fieldset>
+      <legend>Scout &amp; unit</legend>
+
+      <div class="field">
+        <label for="scoutName">Scout's name</label>
+        <input class="input" id="scoutName" name="scoutName" type="text" placeholder="Alex">
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="packNumber">Pack number</label>
+          <input class="input" id="packNumber" name="packNumber" type="text" placeholder="3721">
+        </div>
+        <div class="field">
+          <label for="orderBy">Order by</label>
+          <input class="input" id="orderBy" name="orderBy" type="text" placeholder="October 24">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="goal">Money raised is going toward…</label>
+        <input class="input" id="goal" name="goal" type="text" placeholder="summer camp">
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Ordering</legend>
+
+      <div class="field">
+        <label for="orderUrl">Order link</label>
+        <input class="input" id="orderUrl" name="orderUrl" type="url" placeholder="https://trails-end.com/store/scout/…">
+        <p class="hint">The QR code on the flyer is generated from this link.</p>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="qrScheme">QR style</label>
+          <select class="input" id="qrScheme" name="qrScheme"></select>
+        </div>
+        <div class="field">
+          <label for="qrBottomText">QR border text</label>
+          <input class="input" id="qrBottomText" name="qrBottomText" type="text" placeholder="SCAN TO ORDER">
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Photos</legend>
+
+      <div class="field">
+        <label for="photoCount">Photos in the strip</label>
+        <select class="input" id="photoCount" name="photoCount">
+          <option value="2">2 photos</option>
+          <option value="3">3 photos</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Click or drag an image onto each slot</label>
+        <div class="pickers" id="pickers"></div>
+        <p class="hint">Photos are shrunk to print size before being saved in this browser.</p>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Products</legend>
+
+      <div class="field">
+        <label for="products">One product per line — <code>Name | Price</code></label>
+        <textarea class="input" id="products" name="products" spellcheck="false"></textarea>
+        <p class="hint" id="presetHint"></p>
+      </div>
+
+      <button class="btn btn-secondary" id="resetProducts" type="button">Reset products to presets</button>
+    </fieldset>
+
+    <fieldset>
+      <legend>Paper</legend>
+      <div class="field">
+        <label for="ground">Background</label>
+        <select class="input" id="ground" name="ground">
+          <option value="white">White</option>
+          <option value="cream">Cream</option>
+        </select>
+        <p class="hint">Cream uses more ink but looks warmer. Print at 100% / "actual size", no scaling.</p>
+      </div>
+    </fieldset>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="print" type="button">Print flyer</button>
+      <button class="btn btn-secondary" id="resetAll" type="button">Start over</button>
+    </div>
+  </form>
+
+  <!-- ── preview ───────────────────────────────────────────────────────── -->
+  <div class="stage" id="stage">
+    <div class="sheet-scaler" id="scaler">
+      <section class="sheet" id="sheet">
+
+        <div class="hero">
+          <div class="hero-photo washed">
+            <div class="slot" data-slot="header">
+              <span class="slot-hint">Scout photo</span>
+            </div>
+          </div>
+          <img class="hero-logo" src="assets/cub-scouts-logo.png" alt="Cub Scouts">
+
+          <div class="hero-copy">
+            <span class="hero-tag">PACK&nbsp;<span data-out="packNumber"></span>&nbsp; ·&nbsp; CUB SCOUT FUNDRAISER</span>
+            <div class="hero-scout"><span data-out="scoutName"></span>’s</div>
+            <h1>Popcorn<br>Sale!</h1>
+            <p class="hero-sub">Order by <span data-out="orderBy"></span> &nbsp;·&nbsp; Every bag sends a Scout on an adventure</p>
+          </div>
+        </div>
+
+        <div class="photo-strip" id="photoStrip"></div>
+
+        <div class="pitch">
+          <p>
+            Hi, I'm <strong><span data-out="scoutName"></span></strong> — a Scout in
+            Pack <span data-out="packNumber"></span>! I'm selling popcorn to help fund
+            <strong><span data-out="goal"></span></strong>. Every order helps our Pack do
+            more. Thanks for supporting Scouting!
+          </p>
+          <p class="order-line">Order online: <span data-out="orderUrlText"></span></p>
+        </div>
+
+        <div class="products">
+          <h3>A few favorites</h3>
+          <div class="product-grid" id="productGrid"></div>
+        </div>
+
+        <div class="qr-bar">
+          <div class="qr-slot empty" id="qrSlot">
+            <span class="qr-hint">Add an order link</span>
+          </div>
+          <div class="qr-copy">
+            <div class="head">Scan to order online</div>
+            <div class="sub">Popcorn ships straight to your door.</div>
+          </div>
+          <div class="qr-thanks">Thank you!</div>
+        </div>
+
+        <p class="fine-print">
+          Over 60% of your purchase stays with me, my unit, and my local Council. The
+          remainder goes toward products, shipping, storage, and sales support that
+          enable me to run a successful fundraiser.
+        </p>
+
+      </section>
+    </div>
+  </div>
+
+</div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>

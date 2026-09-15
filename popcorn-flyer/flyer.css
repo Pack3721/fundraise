@@ -1,0 +1,560 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   Popcorn flyer — design tokens, editor chrome, and the printable sheet.
+
+   The sheet is a fixed 8.5in × 11in box with `container-type: size`, so every
+   cqh/cqw length below resolves against real paper: 1cqh = 1% of 11in. On
+   screen the sheet is only *visually* scaled (transform), which leaves the
+   layout box — and therefore every container unit — at its printed size, so
+   the preview and the print are the same drawing at different zooms.
+
+   Tokens are the "Organic" set the flyer was designed against.
+   ───────────────────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Caprasimo:wght@400&family=Figtree:wght@400;600;700&display=swap');
+
+:root {
+  --color-bg: #f5ead8;
+  --color-surface: #ebddc5;
+  --color-text: #201e1d;
+  --color-accent: #c67139;
+  --color-accent-2: #7a8a5e;
+  --color-divider: color-mix(in srgb, #201e1d 16%, transparent);
+
+  --color-neutral-100: #f9f4ed;
+  --color-neutral-200: #eee7db;
+  --color-neutral-300: #dcd3c4;
+  --color-neutral-800: #474238;
+  --color-neutral-900: #2e2b25;
+
+  --color-accent-100: #fff2eb;
+  --color-accent-300: #ffc6a5;
+  --color-accent-600: #b2622d;
+  --color-accent-700: #8c491a;
+  --color-accent-800: #643312;
+
+  --color-accent-2-100: #f0fae1;
+  --color-accent-2-200: #e1eecc;
+  --color-accent-2-400: #aebf92;
+  --color-accent-2-900: #272e1b;
+
+  --font-heading: "Caprasimo", Georgia, serif;
+  --font-body: "Figtree", system-ui, -apple-system, sans-serif;
+
+  --radius-md: 16px;
+  --radius-lg: 28px;
+
+  --shadow-sm: 0 1px 2px color-mix(in srgb, #2e2b25 14%, transparent);
+  --shadow-md: 0 3px 10px color-mix(in srgb, #2e2b25 16%, transparent);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--color-neutral-200);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Editor chrome — everything outside the sheet. Hidden at print time.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.app {
+  display: grid;
+  grid-template-columns: 380px minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.editor {
+  background: #fff;
+  border-right: 1px solid var(--color-divider);
+  padding: 20px 22px 60px;
+  overflow-y: auto;
+  max-height: 100vh;
+  position: sticky;
+  top: 0;
+}
+
+.editor h1 {
+  font-family: var(--font-heading);
+  font-size: 24px;
+  line-height: 1.15;
+  margin: 0 0 2px;
+}
+
+.editor .lede {
+  margin: 0 0 20px;
+  font-size: 13px;
+  color: var(--color-neutral-800);
+}
+
+fieldset {
+  border: 0;
+  border-top: 1px solid var(--color-divider);
+  padding: 16px 0 4px;
+  margin: 0;
+}
+
+legend {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-accent-700);
+  font-weight: 700;
+  padding: 0 8px 0 0;
+}
+
+.field { margin-bottom: 12px; }
+
+.field > label {
+  display: block;
+  font-size: 12px;
+  margin-bottom: 4px;
+  color: var(--color-neutral-800);
+}
+
+.field .hint {
+  font-size: 11px;
+  color: var(--color-neutral-800);
+  opacity: 0.8;
+  margin-top: 4px;
+}
+
+.input {
+  width: 100%;
+  min-height: 36px;
+  padding: 6px 12px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--color-text);
+  background: var(--color-neutral-100);
+  border: 1px solid var(--color-divider);
+  border-radius: 999px;
+}
+
+.input:focus-visible { border-color: var(--color-accent); outline: none; }
+
+textarea.input {
+  min-height: 132px;
+  border-radius: var(--radius-md);
+  resize: vertical;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+select.input { appearance: none; background-image: none; }
+
+.row { display: flex; gap: 8px; }
+.row > * { flex: 1; min-width: 0; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  font: inherit;
+  font-family: var(--font-heading);
+  font-size: 14px;
+  padding: 9px 16px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-text);
+}
+
+.btn-primary { background: var(--color-accent); color: #fff; }
+.btn-primary:hover { background: var(--color-accent-600); }
+.btn-secondary { border-color: var(--color-divider); }
+.btn-secondary:hover { background: color-mix(in srgb, var(--color-text) 7%, transparent); }
+
+.actions { display: flex; gap: 8px; margin: 18px 0 8px; }
+.actions .btn { flex: 1; }
+
+.notice {
+  font-size: 12.5px;
+  line-height: 1.45;
+  background: var(--color-accent-2-100);
+  color: var(--color-accent-2-900);
+  border-radius: var(--radius-md);
+  padding: 9px 12px;
+  margin-bottom: 14px;
+}
+
+.notice[hidden] { display: none; }
+.notice.warn { background: var(--color-accent-100); color: var(--color-accent-800); }
+
+/* Image pickers in the editor — the sheet's own slots are separate (below). */
+.pickers { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.picker {
+  position: relative;
+  width: 96px;
+  height: 78px;
+  border: 1px dashed var(--color-accent);
+  border-radius: var(--radius-md);
+  background: var(--color-neutral-100);
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 10.5px;
+  line-height: 1.3;
+  color: var(--color-accent-700);
+  padding: 6px;
+}
+
+.picker.dragover { background: var(--color-accent-100); }
+.picker img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.picker input[type=file] { display: none; }
+
+.picker .clear {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 20px;
+  height: 20px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(32, 30, 29, 0.72);
+  color: #fff;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.picker.filled .clear { display: flex; }
+
+/* Preview stage */
+.stage {
+  padding: 28px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow: auto;
+}
+
+/* Sized in JS to the scaled sheet, so the stage scrolls around a transform
+   that would otherwise not affect layout. */
+.sheet-scaler { transform-origin: top left; }
+
+@media (max-width: 900px) {
+  .app { grid-template-columns: 1fr; }
+  .editor { position: static; max-height: none; border-right: 0; border-bottom: 1px solid var(--color-divider); }
+  .stage { padding: 16px; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   The sheet — 8.5in × 11in of actual flyer.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.sheet {
+  /* Type scale, trimmed by the auto-fit in app.js when a long name or goal
+     would otherwise push the fine print off the bottom of the sheet. */
+  --fit: 1;
+  width: 8.5in;
+  height: 11in;
+  container-type: size;
+  background: var(--ground, #ffffff);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  display: flex;
+  flex-direction: column;
+  padding: 0.45in 0.5in;
+  gap: 11px;
+  box-shadow: 0 2px 14px rgba(20, 20, 19, 0.16);
+  overflow: hidden;
+  /* Keep the flyer's flood colors when it hits paper. */
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.sheet.ground-cream { --ground: var(--color-bg); }
+
+.sheet h1, .sheet h3 {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+}
+
+.washed { filter: saturate(0.6) contrast(0.85) brightness(1.1) opacity(0.94); }
+
+/* — masthead — */
+.hero {
+  position: relative;
+  border-radius: calc(var(--radius-lg) * 1.4);
+  background: var(--color-accent);
+  overflow: hidden;
+  padding: 2.2cqh 3cqw 6cqh;
+  flex: none;
+}
+
+.hero-photo {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 22cqh;
+  height: 22cqh;
+  border-radius: 0 0 0 100%;
+  overflow: hidden;
+  background: var(--color-accent-300);
+}
+
+.hero-copy { position: relative; max-width: 70%; }
+
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--color-bg);
+  color: var(--color-accent-800);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.hero-scout {
+  font-family: var(--font-heading);
+  font-size: calc(3.4cqh * var(--fit));
+  line-height: 1.1;
+  color: var(--color-bg);
+  margin-top: 0.9cqh;
+  /* A long name shouldn't shove the headline off the sheet. */
+  overflow-wrap: anywhere;
+}
+
+.hero h1 {
+  margin: 0.1cqh 0 0;
+  font-size: calc(7.8cqh * var(--fit));
+  line-height: 0.9;
+  color: var(--color-bg);
+  letter-spacing: -0.03em;
+}
+
+/* Sits in the hero's lower right, clear of both the headline and the photo's
+   quarter-circle. Multiply drops its white plate onto the orange behind it. */
+.hero-logo {
+  position: absolute;
+  right: 5%;
+  bottom: 10%;
+  width: 130px;
+  height: 130px;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+  opacity: 0.9;
+}
+
+.hero-sub {
+  margin: 1cqh 0 0;
+  font-size: calc(2cqh * var(--fit));
+  font-weight: 700;
+  color: var(--color-bg);
+}
+
+/* — the tilted photo strip, overlapping the masthead — */
+.photo-strip {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2.6cqw;
+  margin-top: -6cqh;
+  position: relative;
+  z-index: 2;
+  flex: none;
+}
+
+.snap {
+  width: 24cqw;
+  height: 11.8cqh;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-neutral-200);
+  border: 0.6cqh solid var(--ground, #fff);
+  box-shadow: var(--shadow-md);
+}
+
+.snap:nth-child(1) { transform: rotate(-3.5deg); }
+.snap:nth-child(2) { transform: rotate(2.5deg); }
+.snap:nth-child(3) { transform: rotate(-1.5deg); }
+
+/* — the scout's pitch — */
+.pitch {
+  background: var(--color-surface);
+  border-radius: calc(var(--radius-lg) * 1.15);
+  padding: 1.5cqh 2.2cqw;
+  transform: rotate(-0.5deg);
+  box-shadow: var(--shadow-sm);
+  flex: none;
+}
+
+.pitch p { margin: 0; font-size: calc(1.95cqh * var(--fit)); line-height: 1.45; }
+
+.pitch .order-line {
+  margin: 0.7cqh 0 0;
+  font-size: calc(1.7cqh * var(--fit));
+  font-weight: 700;
+  color: var(--color-accent-700);
+  overflow-wrap: anywhere;
+}
+
+/* — product grid — */
+.products { display: flex; flex-direction: column; gap: 0.9cqh; flex: none; }
+.products h3 { margin: 0; font-size: calc(2.9cqh * var(--fit)); }
+
+.product-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.7cqh 1.4cqw;
+}
+
+.product {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1cqw;
+  background: var(--color-accent-2-100);
+  border-radius: 999px;
+  padding: 0.75cqh 1.6cqw;
+}
+
+.product .name { font-size: calc(1.85cqh * var(--fit)); font-weight: 600; color: var(--color-accent-2-900); }
+.product .price { font-family: var(--font-heading); font-size: calc(2.1cqh * var(--fit)); color: var(--color-accent-700); flex: none; }
+
+.product-more {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-accent-2-200);
+  border-radius: 999px;
+  padding: 0.75cqh 1.6cqw;
+  font-family: var(--font-heading);
+  font-size: calc(2cqh * var(--fit));
+  color: var(--color-accent-2-900);
+}
+
+/* — QR footer — */
+.qr-bar {
+  display: flex;
+  align-items: center;
+  gap: 2cqw;
+  background: var(--color-accent-100);
+  border-radius: calc(var(--radius-lg) * 1.2);
+  padding: 1.2cqh 2.2cqw;
+  flex: none;
+  margin-top: auto;
+}
+
+.qr-slot {
+  width: 11.5cqh;
+  height: 11.5cqh;
+  flex: none;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Only the empty slot wears the "drop something here" dashes. */
+.qr-slot.empty { border: 0.35cqh dashed var(--color-accent-700); }
+
+.qr-slot svg, .qr-slot canvas, .qr-slot img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+}
+
+.qr-slot .qr-hint {
+  font-size: 1.3cqh;
+  line-height: 1.25;
+  text-align: center;
+  color: var(--color-accent-700);
+  padding: 0 0.5cqw;
+}
+
+.qr-copy { flex: 1; min-width: 0; }
+.qr-copy .head { font-family: var(--font-heading); font-size: calc(2.5cqh * var(--fit)); color: var(--color-accent-800); }
+.qr-copy .sub { font-size: calc(1.7cqh * var(--fit)); color: var(--color-accent-800); opacity: 0.85; }
+
+.qr-thanks {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-accent-2);
+  border-radius: 999px;
+  padding: 1.2cqh 2.2cqw;
+  transform: rotate(-3deg);
+  box-shadow: var(--shadow-sm);
+  font-family: var(--font-heading);
+  font-size: calc(3cqh * var(--fit));
+  line-height: 1;
+  color: #fff;
+}
+
+.fine-print {
+  margin: 0;
+  font-size: 1.45cqh;
+  line-height: 1.4;
+  color: var(--color-neutral-800);
+  flex: none;
+}
+
+/* Photo slots inside the sheet: filled slots show the photo, empty ones a
+   prompt that only makes sense on screen — it is hidden for print below. */
+.slot {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-neutral-200);
+}
+
+.slot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.slot .slot-hint {
+  font-size: 1.4cqh;
+  line-height: 1.25;
+  text-align: center;
+  color: var(--color-neutral-800);
+  padding: 0 0.6cqw;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Print — one sheet, nothing else, no scaling.
+   ═══════════════════════════════════════════════════════════════════════ */
+@media print {
+  @page { size: letter; margin: 0; }
+
+  body { background: #fff; }
+  .editor, .stage-toolbar { display: none !important; }
+  .app { display: block; }
+  .stage { padding: 0; display: block; overflow: visible; }
+
+  .sheet-scaler {
+    transform: none !important;
+    width: auto !important;
+    height: auto !important;
+  }
+
+  .sheet { box-shadow: none; }
+
+  /* Empty slots print as blank paper rather than as instructions. */
+  .slot .slot-hint, .qr-slot .qr-hint { visibility: hidden; }
+  .slot, .qr-slot.empty { background: #fff; }
+  .qr-slot.empty { border-color: transparent; }
+}

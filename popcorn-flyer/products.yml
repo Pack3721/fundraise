@@ -1,0 +1,27 @@
+# Popcorn product presets shown on the flyer.
+#
+# `updated` is the rollout date for this list. Each visitor's browser
+# remembers the `updated` value that was in effect the last time presets were
+# applied to their saved list. When the date below is NEWER than that, their
+# list is replaced with these presets on their next visit — so bump it
+# whenever prices or products change for a new season. Leave it alone for
+# typo fixes you don't want pushed over everyone's edits.
+#
+# Format: one `- name: ... / price: ...` pair per product. Six fit the flyer's
+# two-column grid neatly; more will still render but will crowd the page.
+
+updated: 2026-09-14
+
+products:
+  - name: Chocolatey Caramel Crunch
+    price: $25
+  - name: Classic Caramel Corn
+    price: $20
+  - name: White Cheddar
+    price: $20
+  - name: Kettle Corn
+    price: $15
+  - name: Butter Microwave 6-Pack
+    price: $20
+  - name: Helpers & Heroes Donation
+    price: $30
