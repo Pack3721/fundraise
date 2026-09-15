@@ -107,6 +107,21 @@
       </div>
     </fieldset>
 
+    <fieldset>
+      <legend>Backup</legend>
+      <div class="field">
+        <div class="row">
+          <button class="btn btn-secondary" id="exportBackup" type="button">Save backup (.zip)</button>
+          <button class="btn btn-secondary" id="importBackup" type="button">Import backup</button>
+          <input id="importFile" type="file" accept=".zip,application/zip" hidden>
+        </div>
+        <p class="hint">
+          The flyer only lives in this browser. Save a .zip to move it to another
+          computer or phone, or to keep a copy — photos included.
+        </p>
+      </div>
+    </fieldset>
+
     <div class="actions">
       <button class="btn btn-primary" id="print" type="button">Print flyer</button>
       <button class="btn btn-secondary" id="resetAll" type="button">Start over</button>

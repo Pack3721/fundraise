@@ -602,6 +602,116 @@ async function loadPresets() {
   }
 }
 
+// ── backup ────────────────────────────────────────────────────────────────
+
+/* A backup is a zip: flyer.json (every saved field plus the defaults seed
+ * log) and the photos as ordinary image files, so it's also just a folder of
+ * pictures if someone unzips it. Moves a flyer between browsers or devices,
+ * which localStorage alone can't do. */
+const BACKUP_FORMAT = 'popcorn-flyer';
+const BACKUP_VERSION = 1;
+
+async function loadZipLib() {
+  try {
+    const mod = await import('https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm');
+    return mod.default;
+  } catch (e) {
+    show(el.storageNotice, 'Backups need a zip library from the network, which could not be loaded right now.');
+    return null;
+  }
+}
+
+function slug(text) {
+  return (text || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
+
+async function exportBackup() {
+  const JSZip = await loadZipLib();
+  if (!JSZip) return;
+
+  const zip = new JSZip();
+  const manifest = {
+    format: BACKUP_FORMAT,
+    version: BACKUP_VERSION,
+    savedAt: new Date().toISOString(),
+    flyer: state,
+    seeded: readJson(SEEDED_STORAGE_KEY, []),
+    images: {},
+  };
+
+  for (const [key, dataUrl] of Object.entries(images)) {
+    const match = /^data:(image\/(jpeg|png));base64,(.+)$/i.exec(dataUrl);
+    if (!match) continue;
+    const path = `images/${key}.${match[2] === 'png' ? 'png' : 'jpg'}`;
+    zip.file(path, match[3], { base64: true });
+    manifest.images[key] = path;
+  }
+  zip.file('flyer.json', JSON.stringify(manifest, null, 2));
+
+  const blob = await zip.generateAsync({ type: 'blob' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `popcorn-flyer-${slug(state.scoutName) || 'backup'}.zip`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+
+async function importBackup(file) {
+  const JSZip = await loadZipLib();
+  if (!JSZip) return;
+
+  let zip, manifest;
+  try {
+    zip = await JSZip.loadAsync(file);
+    const entry = zip.file('flyer.json');
+    if (!entry) throw new Error('no manifest');
+    manifest = JSON.parse(await entry.async('string'));
+    if (manifest.format !== BACKUP_FORMAT || !manifest.flyer) throw new Error('wrong format');
+  } catch (e) {
+    show(el.storageNotice, "That file isn't a flyer backup from this page.");
+    return;
+  }
+
+  // Only the fields this page knows about, in the shapes it expects — the
+  // zip may have been hand-edited or come from a newer version.
+  const next = Object.assign({}, DEFAULTS);
+  for (const key of Object.keys(DEFAULTS)) {
+    if (key in manifest.flyer && typeof manifest.flyer[key] === typeof DEFAULTS[key]) next[key] = manifest.flyer[key];
+  }
+  next.products = Array.isArray(next.products)
+    ? next.products.filter((p) => p && typeof p.name === 'string').map((p) => ({ name: p.name, price: String(p.price ?? '') }))
+    : [];
+
+  const nextImages = {};
+  for (const [key, path] of Object.entries(manifest.images || {})) {
+    if (!PHOTO_SLOTS.some((s) => s.key === key) || typeof path !== 'string') continue;
+    const entry = zip.file(path);
+    if (!entry) continue;
+    const mime = /\.png$/i.test(path) ? 'image/png' : 'image/jpeg';
+    nextImages[key] = `data:${mime};base64,${await entry.async('base64')}`;
+  }
+
+  state = next;
+  images = nextImages;
+  save();
+  saveImages();
+  // Restore the seed log too, or defaults.yml would re-seed over the
+  // imported pack number on the next load.
+  writeJson(SEEDED_STORAGE_KEY, Array.isArray(manifest.seeded) ? manifest.seeded : []);
+
+  hydrateControls();
+  renderText();
+  renderPickers();
+  renderPhotoStrip();
+  renderProducts();
+  renderQr();
+  fitContent();
+  el.storageNotice.hidden = true;
+  show(el.presetNotice, `Backup imported${manifest.savedAt ? ` (saved ${new Date(manifest.savedAt).toLocaleDateString()})` : ''}.`);
+}
+
 // ── wiring ────────────────────────────────────────────────────────────────
 
 function hydrateControls() {
@@ -659,6 +769,14 @@ function wire() {
   });
 
   document.getElementById('print').addEventListener('click', () => window.print());
+
+  document.getElementById('exportBackup').addEventListener('click', exportBackup);
+  const importFile = document.getElementById('importFile');
+  document.getElementById('importBackup').addEventListener('click', () => importFile.click());
+  importFile.addEventListener('change', () => {
+    if (importFile.files && importFile.files[0]) importBackup(importFile.files[0]);
+    importFile.value = '';
+  });
 
   document.getElementById('resetAll').addEventListener('click', () => {
     if (!confirm('Clear everything on this flyer, including photos?')) return;

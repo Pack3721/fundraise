@@ -49,6 +49,19 @@ should read on paper. A scout can still override it on their own flyer.
 Anyone can also hit **Reset to pack presets** to pull the current file in on
 demand.
 
+## Backups
+
+Everything lives in one browser's `localStorage`, keyed to the exact origin —
+so `localhost` and `127.0.0.1` are two different flyers, and a phone can't see
+a laptop's. **Save backup (.zip)** writes `flyer.json` plus the photos as
+ordinary image files; **Import backup** restores it anywhere, including the
+defaults seed log so `defaults.yml` doesn't re-seed over the imported values.
+Import only accepts fields the page knows about, so a hand-edited or
+newer-version zip can't write junk.
+
+The zip is built in the browser with [JSZip](https://stuk.github.io/jszip/),
+loaded from a CDN like the QR library.
+
 ## Printing
 
 Print at 100% / "actual size" with no page scaling and margins set to none —
