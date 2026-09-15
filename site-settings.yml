@@ -10,3 +10,6 @@
 # see popcorn-flyer/products.yml, which rolls out by date.)
 
 pack_number: 721
+
+# Where the "GitHub | <build>" badge in the page footers points.
+github_repo: https://github.com/Pack3721/fundraise

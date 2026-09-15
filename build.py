@@ -3,14 +3,18 @@
 
 Copies every deployable file, then fills `{{ key }}` tokens in HTML pages
 from site-settings.yml — so a page like the landing page can carry the pack
-number without any JavaScript. Any token with no matching key fails the
-build, so a typo can't ship as literal braces.
+number without any JavaScript. The build also supplies `build_sha` and
+`build_hash` (full and short commit id: GITHUB_SHA on Actions, `git
+rev-parse` locally, "dev" otherwise). Any token with no matching key fails
+the build, so a typo can't ship as literal braces.
 
 Run locally before previewing:  python3 build.py && python3 -m http.server -d _site
 GitHub Actions runs the same script; see .github/workflows/deploy.yml.
 """
+import os
 import re
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -41,8 +45,22 @@ def read_settings(path):
     return settings
 
 
+def build_sha():
+    sha = os.environ.get("GITHUB_SHA", "").strip()
+    if not sha:
+        try:
+            sha = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True,
+                                 text=True, check=True).stdout.strip()
+        except (OSError, subprocess.CalledProcessError):
+            sha = ""
+    return sha or "dev"
+
+
 def main():
     settings = read_settings(SETTINGS)
+    sha = build_sha()
+    settings["build_sha"] = sha
+    settings["build_hash"] = sha[:7]
 
     if OUT.exists():
         shutil.rmtree(OUT)

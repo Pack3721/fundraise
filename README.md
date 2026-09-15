@@ -6,7 +6,9 @@ Fundraising tools for Cub Scout Pack 3721, published at
 Plain static HTML/CSS/JS — no Jekyll. The only build step is
 [`build.py`](build.py), which copies the site into `_site/` and fills
 `{{ key }}` tokens in HTML pages from [`site-settings.yml`](site-settings.yml)
-(a token with no matching key fails the build). Pushing to `main` runs it and
+(a token with no matching key fails the build). The build also supplies
+`{{ build_hash }}` / `{{ build_sha }}` — the deployed commit — which the
+footer badges show. Pushing to `main` runs it and
 deploys through GitHub Actions
 ([`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)).
 

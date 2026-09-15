@@ -13,6 +13,7 @@
     --text: #201e1d;
     --muted: #645c50;
     --accent: #c67139;
+    --accent-2: #7a8a5e;
     --accent-700: #8c491a;
     --accent-100: #fff2eb;
     --heading: "Caprasimo", Georgia, serif;
@@ -88,6 +89,19 @@
   }
 
   footer a { color: var(--accent-700); }
+
+  /* Footer badges, shields.io style, drawn in CSS so nothing is fetched. */
+  .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .badge {
+    display: inline-flex; font: 600 11px/1 system-ui, -apple-system, "Segoe UI", sans-serif;
+    border-radius: 4px; overflow: hidden; text-decoration: none; color: #fff;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
+  }
+  .badge span { padding: 5px 7px; }
+  .badge .label { background: #555; }
+  .badge .value { background: var(--accent); }
+  .badge .value.alt { background: var(--accent-2); }
+  .badge:hover .value { filter: brightness(1.08); }
 </style>
 </head>
 <body>
@@ -113,6 +127,10 @@
     <p>
       This project is not officially endorsed by the Boy Scouts of America. It is
       provided as a community resource for fundraising support.
+    </p>
+    <p class="badges">
+      <a class="badge" href="{{ github_repo }}" title="Source on GitHub — built from commit {{ build_hash }}" target="_blank" rel="noreferrer"><span class="label">GitHub</span><span class="value">{{ build_hash }}</span></a>
+      <a class="badge" href="https://claude.com/claude-code" title="Built with Claude Code" target="_blank" rel="noreferrer"><span class="label">Made by</span><span class="value alt">Claude</span></a>
     </p>
   </footer>
 </main>

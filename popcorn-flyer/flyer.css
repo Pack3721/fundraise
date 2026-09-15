@@ -187,6 +187,19 @@ select.input { appearance: none; background-image: none; }
 .notice[hidden] { display: none; }
 .notice.warn { background: var(--color-accent-100); color: var(--color-accent-800); }
 
+/* Footer badges, shields.io style, drawn in CSS so nothing is fetched. */
+.badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.badge {
+  display: inline-flex; font: 600 11px/1 system-ui, -apple-system, "Segoe UI", sans-serif;
+  border-radius: 4px; overflow: hidden; text-decoration: none; color: #fff;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
+}
+.badge span { padding: 5px 7px; }
+.badge .label { background: #555; }
+.badge .value { background: var(--color-accent); }
+.badge .value.alt { background: var(--color-accent-2); }
+.badge:hover .value { filter: brightness(1.08); }
+
 /* Image pickers in the editor — the sheet's own slots are separate (below). */
 .pickers { display: flex; flex-wrap: wrap; gap: 8px; }
 
