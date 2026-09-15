@@ -399,6 +399,12 @@ select.input { appearance: none; background-image: none; }
 
 .pitch p { margin: 0; font-size: calc(1.95cqh * var(--fit)); line-height: 1.45; }
 
+/* The link text and the QR are real links on screen, drawn exactly as the
+   print design has them — no underline, no link color, no cursor change
+   unless there's somewhere to go. */
+.order-link, .qr-slot { color: inherit; text-decoration: none; }
+.order-link:not([href]), .qr-slot:not([href]) { cursor: default; pointer-events: none; }
+
 .pitch .order-line {
   margin: 0.7cqh 0 0;
   font-size: calc(1.7cqh * var(--fit));

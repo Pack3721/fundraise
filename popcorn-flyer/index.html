@@ -36,7 +36,7 @@
       <div class="row">
         <div class="field">
           <label for="packNumber">Pack number</label>
-          <input class="input" id="packNumber" type="text" autocomplete="off" placeholder="3721">
+          <input class="input" id="packNumber" type="text" autocomplete="off" placeholder="721">
         </div>
         <div class="field">
           <label for="orderBy">Order by</label>
@@ -143,7 +143,7 @@
             <strong><span data-out="goal"></span></strong>. Every order helps our Pack do
             more. Thanks for supporting Scouting!
           </p>
-          <p class="order-line">Order online: <span data-out="orderUrlText"></span></p>
+          <p class="order-line">Order online: <a class="order-link" id="orderLink" data-out="orderUrlText" target="_blank" rel="noreferrer"></a></p>
         </div>
 
         <div class="products">
@@ -152,9 +152,9 @@
         </div>
 
         <div class="qr-bar">
-          <div class="qr-slot empty" id="qrSlot">
+          <a class="qr-slot empty" id="qrSlot" target="_blank" rel="noreferrer">
             <span class="qr-hint">Add an order link</span>
-          </div>
+          </a>
           <div class="qr-copy">
             <div class="head">Scan to order online</div>
             <div class="sub">Popcorn ships straight to your door.</div>

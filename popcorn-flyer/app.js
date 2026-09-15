@@ -276,15 +276,30 @@ function textFor(key) {
   return value || PLACEHOLDERS[key] || '';
 }
 
+/* The order link as something a browser (or a QR scanner) can actually open:
+ * a bare "trails-end.com/…" gets https:// in front, and anything that isn't
+ * http(s) is refused rather than turned into a link. */
+function orderHref() {
+  let url = (state.orderUrl || '').trim();
+  if (!url) return '';
+  if (!/^[a-z][a-z0-9+.-]*:/i.test(url)) url = 'https://' + url;
+  return /^https?:\/\//i.test(url) ? url : '';
+}
+
 function renderText() {
+  const href = orderHref();
   for (const node of document.querySelectorAll('[data-out]')) {
     const key = node.dataset.out;
     if (key === 'orderUrlText') {
-      const url = (state.orderUrl || '').trim();
-      node.textContent = url ? url.replace(/^https?:\/\//, '').replace(/\/$/, '') : PLACEHOLDERS.orderUrl;
+      node.textContent = href ? href.replace(/^https?:\/\//, '').replace(/\/$/, '') : PLACEHOLDERS.orderUrl;
     } else {
       node.textContent = textFor(key);
     }
+  }
+  // Both the printed URL and the QR are live links on screen; with nothing to
+  // point at they're inert, so the print design isn't a dead click target.
+  for (const link of [document.getElementById('orderLink'), el.qrSlot]) {
+    if (href) link.href = href; else link.removeAttribute('href');
   }
   el.sheet.classList.toggle('ground-cream', state.ground === 'cream');
 }
@@ -443,7 +458,7 @@ function scheduleQr() {
 }
 
 async function renderQr() {
-  const url = (state.orderUrl || '').trim();
+  const url = orderHref();
   const slot = el.qrSlot;
 
   if (!url) {
