@@ -1,8 +1,7 @@
 /* Popcorn Flyer Maker — fill in the blanks, keep it in localStorage, print it.
  *
  * Nothing leaves the browser: text and (downscaled) photos live in
- * localStorage, and the only network calls are for the QR styling library and
- * its center icon.
+ * localStorage, and the only network call is for the QR styling library.
  */
 
 // ── QR library ────────────────────────────────────────────────────────────
@@ -10,17 +9,11 @@
 // the rest of the pack's material. Loaded dynamically: if the CDN is blocked
 // the flyer still works, it just prints without a QR code.
 let QRCodeStyling = null;
-let BorderPlugin = null;
 
 const qrLibReady = (async () => {
   try {
-    const base = 'https://cdn.jsdelivr.net/npm/@liquid-js/qr-code-styling@5.5.0/lib/';
-    const [core, border] = await Promise.all([
-      import(base + 'qr-code-styling.js'),
-      import(base + 'border-plugin.js'),
-    ]);
+    const core = await import('https://cdn.jsdelivr.net/npm/@liquid-js/qr-code-styling@5.5.0/lib/qr-code-styling.js');
     QRCodeStyling = core.QRCodeStyling;
-    BorderPlugin = border.default;
     return true;
   } catch (e) {
     return false;
@@ -46,22 +39,20 @@ const FALLBACK_PRODUCTS = [
 
 const QR_SCHEMES = [
   {
-    key: 'popcorn', label: 'Popcorn', shape: 'circle',
+    key: 'popcorn', label: 'Popcorn', shape: 'square',
     dotsColor: '#b2622d', dotsType: 'dots',
     backgroundColor: '#ffffff',
     cornersSquareColor: '#7a8a5e', cornersSquareType: 'extra-rounded',
     cornersDotColor: '#8c491a', cornersDotType: 'dot',
-    borderColor: '#8c491a', borderTextColor: '#f5ead8',
     iconColor: '#b2622d',
   },
   {
     // Mirrors cub-qr's navy-gold scheme.
-    key: 'navy-gold', label: 'Navy & Gold', shape: 'circle',
+    key: 'navy-gold', label: 'Navy & Gold', shape: 'square',
     dotsColor: '#003F87', dotsType: 'dots',
     backgroundColor: '#ffffff',
     cornersSquareColor: '#FFC72C', cornersSquareType: 'extra-rounded',
     cornersDotColor: '#003F87', cornersDotType: 'dot',
-    borderColor: '#003F87', borderTextColor: '#FFC72C',
     iconColor: '#003F87',
   },
   {
@@ -71,7 +62,6 @@ const QR_SCHEMES = [
     backgroundColor: '#ffffff',
     cornersSquareColor: '#000000', cornersSquareType: 'square',
     cornersDotColor: '#000000', cornersDotType: 'square',
-    borderColor: '#000000', borderTextColor: '#ffffff',
     iconColor: '#000000',
   },
 ];
@@ -97,7 +87,6 @@ const DEFAULTS = {
   goal: '',
   orderUrl: '',
   qrScheme: 'popcorn',
-  qrBottomText: 'SCAN TO ORDER',
   photoCount: '3',
   ground: 'white',
   products: [],
@@ -241,7 +230,7 @@ const el = {
   qrScheme: document.getElementById('qrScheme'),
 };
 
-const TEXT_FIELDS = ['scoutName', 'packNumber', 'orderBy', 'goal', 'orderUrl', 'qrBottomText'];
+const TEXT_FIELDS = ['scoutName', 'packNumber', 'orderBy', 'goal', 'orderUrl'];
 const SELECT_FIELDS = ['qrScheme', 'photoCount', 'ground'];
 
 // ── products text <-> list ────────────────────────────────────────────────
@@ -454,18 +443,6 @@ async function renderQr() {
   }
 
   const scheme = QR_SCHEMES.find((s) => s.key === state.qrScheme) || QR_SCHEMES[0];
-  const bottom = (state.qrBottomText || '').trim();
-
-  const border = new BorderPlugin({
-    proportional: true,
-    size: 0.12,
-    round: 1,
-    margin: 0,
-    color: scheme.borderColor,
-    text: bottom
-      ? { font: 'sans-serif', color: scheme.borderTextColor, size: 0.075, fontWeight: 'bold', bottom: { content: bottom } }
-      : undefined,
-  });
 
   const qr = new QRCodeStyling({
     type: 'svg',
@@ -476,12 +453,13 @@ async function renderQr() {
     image: QR_ICON,
     imageOptions: { margin: 1, imageSize: 0.3 },
     dotsOptions: { color: scheme.dotsColor, type: scheme.dotsType },
-    backgroundOptions: { color: scheme.backgroundColor, round: 1, margin: 3 },
+    // 4 modules is the quiet zone the QR spec asks for; without the border
+    // plugin the code's own background is the only margin a camera gets.
+    backgroundOptions: { color: scheme.backgroundColor, round: 1, margin: 4 },
     cornersSquareOptions: { type: scheme.cornersSquareType, color: scheme.cornersSquareColor },
     cornersDotOptions: { type: scheme.cornersDotType, color: scheme.cornersDotColor },
     // H tolerates the center icon, and a creased paper flyer.
     qrOptions: { errorCorrectionLevel: 'H' },
-    plugins: [border],
   });
 
   slot.classList.remove('empty');
@@ -575,7 +553,7 @@ function wire() {
       save();
       renderText();
       fitContent();
-      if (key === 'orderUrl' || key === 'qrBottomText') scheduleQr();
+      if (key === 'orderUrl') scheduleQr();
     });
   }
 

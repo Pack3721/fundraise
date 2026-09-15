@@ -462,6 +462,9 @@ select.input { appearance: none; background-image: none; }
   border-radius: var(--radius-md);
   overflow: hidden;
   background: #fff;
+  /* White all the way to the rounded corners, so the code's quiet zone isn't
+     cut into by the pink bar behind it. */
+  padding: 0.4cqh;
   display: flex;
   align-items: center;
   justify-content: center;
