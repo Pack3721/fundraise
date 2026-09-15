@@ -8,7 +8,8 @@ Plain static HTML/CSS/JS — no Jekyll. The only build step is
 `{{ key }}` tokens in HTML pages from [`site-settings.yml`](site-settings.yml)
 (a token with no matching key fails the build). The build also supplies
 `{{ build_hash }}` / `{{ build_sha }}` — the deployed commit — which the
-footer badges show. Pushing to `main` runs it and
+footer badges show, and appends `?v=<hash>` to every local stylesheet, script
+and image reference so a deploy never serves a stale asset from cache. Pushing to `main` runs it and
 deploys through GitHub Actions
 ([`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)).
 

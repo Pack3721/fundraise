@@ -8,6 +8,10 @@ number without any JavaScript. The build also supplies `build_sha` and
 rev-parse` locally, "dev" otherwise). Any token with no matching key fails
 the build, so a typo can't ship as literal braces.
 
+Finally, every local asset reference in HTML (`href`/`src` to a .css, .js,
+image or .yml on this site) gets `?v=<build_hash>` appended, so a deploy
+never serves a stale stylesheet or script out of a browser or CDN cache.
+
 Run locally before previewing:  python3 build.py && python3 -m http.server -d _site
 GitHub Actions runs the same script; see .github/workflows/deploy.yml.
 """
@@ -26,6 +30,13 @@ SETTINGS = ROOT / "site-settings.yml"
 EXCLUDE = {".git", ".github", "_site", "2025-archive", "build.py", ".gitignore", ".DS_Store"}
 
 TOKEN = re.compile(r"\{\{\s*([\w-]+)\s*\}\}")
+
+# href="…" / src="…" pointing at a same-site asset worth cache-busting.
+# Absolute URLs, protocol-relative, data: and anchors are left alone.
+ASSET_REF = re.compile(
+    r"""((?:href|src)=["'])(?!(?:[a-z]+:|//|#))([^"'?#]+\.(?:css|js|mjs|png|jpe?g|gif|svg|webp|ico|yml|json))(["'])""",
+    re.IGNORECASE,
+)
 
 
 def read_settings(path):
@@ -86,6 +97,7 @@ def main():
             return settings[key]
 
         filled = TOKEN.sub(fill, text)
+        filled = ASSET_REF.sub(rf"\g<1>\g<2>?v={settings['build_hash']}\g<3>", filled)
         if filled != text:
             page.write_text(filled, encoding="utf-8")
 
