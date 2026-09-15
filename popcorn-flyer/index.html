@@ -12,7 +12,10 @@
 <div class="app">
 
   <!-- ── editor ────────────────────────────────────────────────────────── -->
-  <form class="editor" id="editor" autocomplete="off">
+  <!-- Deliberately not a <form>: nothing is ever submitted, and a real form
+       invites password managers and form-recovery extensions to treat the
+       fields as unsaved work and prompt on refresh. -->
+  <div class="editor" id="editor">
     <h1>Popcorn Flyer Maker</h1>
     <p class="lede">
       Fill in the blanks, drop in a few photos, then print. Everything you type
@@ -27,23 +30,23 @@
 
       <div class="field">
         <label for="scoutName">Scout's name</label>
-        <input class="input" id="scoutName" name="scoutName" type="text" placeholder="Alex">
+        <input class="input" id="scoutName" type="text" autocomplete="off" placeholder="Alex">
       </div>
 
       <div class="row">
         <div class="field">
           <label for="packNumber">Pack number</label>
-          <input class="input" id="packNumber" name="packNumber" type="text" placeholder="3721">
+          <input class="input" id="packNumber" type="text" autocomplete="off" placeholder="3721">
         </div>
         <div class="field">
           <label for="orderBy">Order by</label>
-          <input class="input" id="orderBy" name="orderBy" type="text" placeholder="October 24">
+          <input class="input" id="orderBy" type="text" autocomplete="off" placeholder="October 24">
         </div>
       </div>
 
       <div class="field">
         <label for="goal">Money raised is going toward…</label>
-        <input class="input" id="goal" name="goal" type="text" placeholder="summer camp">
+        <input class="input" id="goal" type="text" autocomplete="off" placeholder="summer camp">
       </div>
     </fieldset>
 
@@ -52,13 +55,13 @@
 
       <div class="field">
         <label for="orderUrl">Order link</label>
-        <input class="input" id="orderUrl" name="orderUrl" type="url" placeholder="https://trails-end.com/store/scout/…">
+        <input class="input" id="orderUrl" type="url" autocomplete="off" placeholder="https://trails-end.com/store/scout/…">
         <p class="hint">The QR code on the flyer is generated from this link.</p>
       </div>
 
       <div class="field">
         <label for="qrScheme">QR style</label>
-        <select class="input" id="qrScheme" name="qrScheme"></select>
+        <select class="input" id="qrScheme"></select>
       </div>
     </fieldset>
 
@@ -67,7 +70,7 @@
 
       <div class="field">
         <label for="photoCount">Photos in the strip</label>
-        <select class="input" id="photoCount" name="photoCount">
+        <select class="input" id="photoCount">
           <option value="2">2 photos</option>
           <option value="3">3 photos</option>
         </select>
@@ -85,7 +88,7 @@
 
       <div class="field">
         <label for="products">One product per line — <code>Name | Price</code></label>
-        <textarea class="input" id="products" name="products" spellcheck="false"></textarea>
+        <textarea class="input" id="products" spellcheck="false" autocomplete="off"></textarea>
         <p class="hint" id="presetHint"></p>
       </div>
 
@@ -96,7 +99,7 @@
       <legend>Paper</legend>
       <div class="field">
         <label for="ground">Background</label>
-        <select class="input" id="ground" name="ground">
+        <select class="input" id="ground">
           <option value="white">White</option>
           <option value="cream">Cream</option>
         </select>
@@ -108,7 +111,7 @@
       <button class="btn btn-primary" id="print" type="button">Print flyer</button>
       <button class="btn btn-secondary" id="resetAll" type="button">Start over</button>
     </div>
-  </form>
+  </div>
 
   <!-- ── preview ───────────────────────────────────────────────────────── -->
   <div class="stage" id="stage">

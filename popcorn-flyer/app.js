@@ -208,7 +208,6 @@ function show(node, message) {
 // ── element lookup ────────────────────────────────────────────────────────
 
 const el = {
-  editor: document.getElementById('editor'),
   stage: document.getElementById('stage'),
   scaler: document.getElementById('scaler'),
   sheet: document.getElementById('sheet'),
