@@ -26,16 +26,20 @@ const STORAGE_KEY = 'popcornFlyer';
 const IMAGE_STORAGE_KEY = 'popcornFlyerImages';
 const PRODUCTS_URL = 'products.yml';
 
-// Fallback list, used only when products.yml can't be fetched (opening the
-// page straight off disk, say). The file is the real source of truth.
-const FALLBACK_PRODUCTS = [
-  { name: 'Chocolatey Caramel Crunch', price: '$25' },
-  { name: 'Classic Caramel Corn', price: '$20' },
-  { name: 'White Cheddar', price: '$20' },
-  { name: 'Kettle Corn', price: '$15' },
-  { name: 'Butter Microwave 6-Pack', price: '$20' },
-  { name: 'Helpers & Heroes Donation', price: '$30' },
-];
+// Used only when products.yml can't be fetched (opening the page straight off
+// disk, say). The file is the real source of truth.
+const FALLBACK_PRESETS = {
+  updated: '',
+  orderBy: 'October 31st',
+  products: [
+    { name: 'Salted Caramel Corn', price: '$20' },
+    { name: 'White Cheddar', price: '$20' },
+    { name: 'Sweet & Salty Kettle Corn', price: '$20' },
+    { name: 'Microwave Butter Popcorn', price: '$27' },
+    { name: 'Dark Chocolatey Salted Caramels', price: '$37' },
+    { name: 'Helpers & Heroes Donation', price: '$5 and up' },
+  ],
+};
 
 const QR_SCHEMES = [
   {
@@ -84,9 +88,9 @@ const DEFAULTS = {
   ground: 'white',
   products: [],
   // The products.yml `updated` value in force the last time presets were
-  // applied here. Presets overwrite the saved list only when the file's date
-  // is newer than this.
-  productsPresetDate: '',
+  // applied here. Presets overwrite the saved order-by date and product list
+  // only when the file's date is newer than this.
+  presetDate: '',
 };
 
 const PHOTO_SLOTS = [
@@ -119,12 +123,12 @@ function writeJson(key, value) {
 
 // ── products.yml ──────────────────────────────────────────────────────────
 
-/* Parses the narrow shape of products.yml only — `updated: <date>` plus a
- * `products:` list of `- name:` / `price:` pairs. Not a general YAML parser;
- * it exists so the presets can stay a hand-editable file without pulling in a
- * parser library or a build step. */
+/* Parses the narrow shape of products.yml only — the scalars `updated` and
+ * `order_by`, plus a `products:` list of `- name:` / `price:` pairs. Not a
+ * general YAML parser; it exists so the presets can stay a hand-editable file
+ * without pulling in a parser library or a build step. */
 function parseProductsYaml(text) {
-  const out = { updated: '', products: [] };
+  const out = { updated: '', orderBy: '', products: [] };
   let inProducts = false;
   let current = null;
 
@@ -141,6 +145,7 @@ function parseProductsYaml(text) {
       } else {
         inProducts = false;
         if (key === 'updated') out.updated = unquote(value);
+        if (key === 'order_by') out.orderBy = unquote(value);
       }
       continue;
     }
@@ -186,7 +191,7 @@ function isNewer(a, b) {
 
 let state = Object.assign({}, DEFAULTS, readJson(STORAGE_KEY, {}));
 let images = readJson(IMAGE_STORAGE_KEY, {});
-let presets = { updated: '', products: FALLBACK_PRODUCTS };
+let presets = FALLBACK_PRESETS;
 
 if (!Array.isArray(state.products)) state.products = [];
 
@@ -486,11 +491,17 @@ function fitPreview() {
 
 // ── presets ───────────────────────────────────────────────────────────────
 
+/* Pulls the whole preset bundle — order-by date and products — into the saved
+ * flyer. Both come from the same file under the same rollout date, so they
+ * refresh together. */
 function applyPresets(reason) {
+  state.orderBy = presets.orderBy;
   state.products = presets.products.map((p) => Object.assign({}, p));
-  state.productsPresetDate = presets.updated;
+  state.presetDate = presets.updated;
+  document.getElementById('orderBy').value = state.orderBy;
   el.productsText.value = productsToText(state.products);
   save();
+  renderText();
   renderProducts();
   fitContent();
   if (reason) show(el.presetNotice, reason);
@@ -501,19 +512,22 @@ async function loadPresets() {
     const response = await fetch(PRODUCTS_URL, { cache: 'no-cache' });
     if (!response.ok) throw new Error(String(response.status));
     presets = parseProductsYaml(await response.text());
-    if (!presets.products.length) presets.products = FALLBACK_PRODUCTS;
+    if (!presets.products.length) presets.products = FALLBACK_PRESETS.products;
+    if (!presets.orderBy) presets.orderBy = FALLBACK_PRESETS.orderBy;
   } catch (e) {
-    presets = { updated: '', products: FALLBACK_PRODUCTS };
+    presets = FALLBACK_PRESETS;
   }
 
   el.presetHint.textContent = presets.updated
-    ? `Preset list last updated ${presets.updated}.`
-    : 'Using the built-in list — products.yml could not be loaded.';
+    ? `Pack presets last updated ${presets.updated}.`
+    : 'Using the built-in presets — products.yml could not be loaded.';
 
-  if (!state.products.length) {
+  // `presetDate` records that presets have ever landed here, so a scout who
+  // clears the list back to empty doesn't get it silently refilled.
+  if (!state.presetDate) {
     applyPresets('');
-  } else if (isNewer(presets.updated, state.productsPresetDate)) {
-    applyPresets(`The pack published an updated product list (${presets.updated}), so the products below were refreshed.`);
+  } else if (isNewer(presets.updated, state.presetDate)) {
+    applyPresets(`The pack published updated details (${presets.updated}), so the order-by date and products below were refreshed.`);
   }
 }
 
@@ -570,7 +584,7 @@ function wire() {
   });
 
   document.getElementById('resetProducts').addEventListener('click', () => {
-    applyPresets('Products reset to the pack presets.');
+    applyPresets('Order-by date and products reset to the pack presets.');
   });
 
   document.getElementById('print').addEventListener('click', () => window.print());

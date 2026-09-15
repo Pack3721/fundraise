@@ -10,28 +10,35 @@ never leaves the device.
 
 ## Updating the product list
 
-`products.yml` holds the presets everyone starts from:
+`products.yml` holds the pack-wide presets everyone starts from — the order
+deadline and the product list:
 
 ```yaml
-updated: 2026-09-14
+updated: 2026-09-15
+
+order_by: October 31st
 
 products:
-  - name: Chocolatey Caramel Crunch
-    price: $25
+  - name: Salted Caramel Corn
+    price: $20
 ```
 
 Each browser remembers the `updated` value that was in force the last time
 presets were applied to it. When the date in the file is **newer** than that,
-the saved list is replaced with the file's on the next visit and the scout is
-told why. So:
+the saved order-by date and product list are both replaced with the file's on
+the next visit, and the scout is told why. So:
 
-- **New season, new prices** — change the products *and* bump `updated`. It
-  rolls out to everyone, including scouts who had edited their own list.
-- **Fixing a typo** — change the products and leave `updated` alone. Nobody's
-  saved list is touched; only scouts starting fresh see the change.
+- **New season, new prices or deadline** — change the values *and* bump
+  `updated`. It rolls out to everyone, including scouts who had edited their
+  own copy.
+- **Fixing a typo** — change the values and leave `updated` alone. Nobody's
+  saved flyer is touched; only scouts starting fresh see the change.
 
-Anyone can also hit **Reset products to presets** to pull the current file in
-on demand.
+`order_by` is free text printed as "Order by <this>", so write it the way it
+should read on paper. A scout can still override it on their own flyer.
+
+Anyone can also hit **Reset to pack presets** to pull the current file in on
+demand.
 
 ## Printing
 
@@ -62,7 +69,7 @@ print resolution.
 | `index.html` | Editor panel plus the flyer itself |
 | `flyer.css` | Design tokens, the printable sheet, editor chrome, print rules |
 | `app.js` | State, `localStorage`, image downscaling, presets, QR |
-| `products.yml` | Product presets and their rollout date |
+| `products.yml` | Order-by date, product presets, and their rollout date |
 | `assets/` | Cub Scouts logo |
 
 The flyer's layout is a fixed 8.5in × 11in box with `container-type: size`, so
