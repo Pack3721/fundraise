@@ -26,6 +26,9 @@ const STORAGE_KEY = 'popcornFlyer';
 const IMAGE_STORAGE_KEY = 'popcornFlyerImages';
 const SEEDED_STORAGE_KEY = 'popcornFlyerSeeded';
 const PRODUCTS_URL = 'products.yml';
+// A Scout's Trails End store is this plus their 8-character scout code.
+const TRAILS_END_STORE = 'https://trails-end.com/store/scout/';
+const SCOUT_CODE = /^[A-Za-z0-9]{8}$/;
 // The site-wide settings file, one level up — shared with the landing page,
 // which gets it filled in at build time instead (see ../build.py).
 const SETTINGS_URL = '../site-settings.yml';
@@ -277,11 +280,13 @@ function textFor(key) {
 }
 
 /* The order link as something a browser (or a QR scanner) can actually open:
- * a bare "trails-end.com/…" gets https:// in front, and anything that isn't
- * http(s) is refused rather than turned into a link. */
+ * a bare 8-character scout code becomes the Scout's Trails End store, a bare
+ * "trails-end.com/…" gets https:// in front, and anything that isn't http(s)
+ * is refused rather than turned into a link. */
 function orderHref() {
   let url = (state.orderUrl || '').trim();
   if (!url) return '';
+  if (SCOUT_CODE.test(url)) return TRAILS_END_STORE + url.toUpperCase();
   if (!/^[a-z][a-z0-9+.-]*:/i.test(url)) url = 'https://' + url;
   return /^https?:\/\//i.test(url) ? url : '';
 }
